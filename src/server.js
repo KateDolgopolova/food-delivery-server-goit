@@ -1,6 +1,6 @@
 const http = require('http');
 const url = require('url');
-
+const fs = require('fs');
 const morgan = require('morgan');
 const router = require('./routes/router');
 
@@ -12,7 +12,7 @@ const startServer = port => {
 
     // Get route from the request
     const parsedUrl = url.parse(request.url);
-
+    //console.log(parsedUrl);
     // Get router function
     const func = router[parsedUrl.pathname] || router.default;
 
