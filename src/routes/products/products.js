@@ -1,12 +1,47 @@
 const path = require("path");
 const fs = require("fs");
 const url = require ('url');
+const querystring = require('querystring');
 
+
+const productRequest = (request, response) => {
+    let pathName;
+    const queryArray = querystring.parse(request.url, '&', "=");
+    for ( let path in queryArray ) {
+        pathName = path;
+    }
+
+    switch (pathName) {
+        case "/products":
+        case "/products/":
+            getAllProducts(request, response);
+            break;
+        case "/products/?ids":
+            getProduct(request, response);
+            break;
+        case "/products/?category":
+            getCategory(request, response);
+            break;
+        case '/products/:id(\\d+)':
+            break;
+        default:
+            console.log("Nothing");
+    }
+
+
+
+};
 
 const getAllProducts = (request, response) => {
    const products = path.join(__dirname, '../../../',  '/src/db/products', '/all-products.json');
 
     const answer = fs.readFileSync(products);
+    let pathName
+    const queryArray = querystring.parse(request.url, '&', "=");
+    for ( let path in queryArray ) {
+        pathName = path;
+    }
+    console.log(pathName);
    fs.readFile(products, function(err, data) {
        const answer = (data);
 
@@ -17,8 +52,7 @@ const getAllProducts = (request, response) => {
         response.end(answer);
    } );
 
-    response.writeHead(200, {"Content-type" : "application/json"});
-    response.end(answer);
+
 };
 
 const getIdProduct = url => {
@@ -43,7 +77,6 @@ const getProduct = (request, response) => {
         "status": "success",
         "products": getElementId(id)
     };
-    console.log(responseObj);
 
   response.writeHead (200, {"Contend-type" : "application/json"});
   //response.write(JSON.stringify({ getIdProduct: id}));
@@ -68,7 +101,6 @@ function getElementId(id) {
             }
         }
     }
-    console.log(objectItems);
     return objectItems;
 
 }
@@ -89,7 +121,6 @@ function getElementByCategory(category) {
             }
         }
     }
-    console.log(objectItems);
     return objectItems;
 
 }
@@ -120,13 +151,11 @@ const getCategory = (request, response) => {
 
 
     response.writeHead(200, {"Contend-type": "application/json"});
-    //response.write(JSON.stringify({ getIdProduct: id}));
     response.write(JSON.stringify(responseObj));
     response.end();
-}
+};
 
 
-module.exports = getAllProducts;
-module.exports = getProduct;
-module.exports = getCategory;
+module.exports = productRequest;
+
 
