@@ -5,7 +5,6 @@ const signUpRoute = (request, response) => {
     if (request.method === 'POST') {
 
         request.on("data", function (data) {
-            console.log(data);
         });
 
         request.on('data', function (data) {
@@ -33,16 +32,5 @@ const signUpRoute = (request, response) => {
         response.end();
     }
 };
-
-
-// Взять username с данных, сохранить в переменную
-
-// Сохраняем данные в <username>.json
-
-// Сохранить <username>.json в папку users
-
-// Отправляем файл в ответе с данными юзера
-// использовать response
-
 
 module.exports = signUpRoute;
