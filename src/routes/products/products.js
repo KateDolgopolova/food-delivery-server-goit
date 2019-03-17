@@ -22,8 +22,6 @@ const productRequest = (request, response) => {
         case "/products/?category":
             getCategory(request, response);
             break;
-        case '/products/:id(\\d+)':
-            break;
         default:
             console.log("Nothing");
     }
@@ -32,28 +30,42 @@ const productRequest = (request, response) => {
 
 };
 
-const getAllProducts = (request, response) => {
-   const products = path.join(__dirname, '../../../',  '/src/db/products', '/all-products.json');
-
-    const answer = fs.readFileSync(products);
-    let pathName
-    const queryArray = querystring.parse(request.url, '&', "=");
-    for ( let path in queryArray ) {
-        pathName = path;
+const getProducts = (request, response) => {
+    if (request.query.ids !== undefined || request.params.id !== undefined){
+      response.writeHead (200, {"Contend-type" : "application/json"});
+       response.write(JSON.stringify(getProductById(request.query.ids || request.params.id)));
+       response.end();
+   } else if (request.query.category !== undefined){
+        response.writeHead (200, {"Contend-type" : "application/json"});
+        response.write(JSON.stringify(getElementByCategory(request.query.category)));
+        response.end();
     }
-    console.log(pathName);
-   fs.readFile(products, function(err, data) {
-       const answer = (data);
-
-
-       if(err) throw err;
-
-        response.writeHead(200, {"Content-type" : "application/json"});
-        response.end(answer);
-   } );
-
+   else {
+       response.writeHead(200, {"Content-type" : "application/json"});
+       response.write(JSON.stringify(getAllProducts()));
+       response.end();
+   }
 
 };
+
+function getProductById(id) {
+    const productsFile = path.join(__dirname, '../../../', '/src/db/products', '/all-products.json');
+    const products = fs.readFileSync(productsFile);
+
+    const responseObj = {
+        "status": "success",
+        "products": getElementId(id)
+    };
+    return responseObj;
+
+}
+
+function getAllProducts() {
+    const productsFile = path.join(__dirname, '../../../',  '/src/db/products', '/all-products.json');
+    const products = fs.readFileSync(productsFile);
+    const allProductsJS = JSON.parse(products);
+    return allProductsJS;
+}
 
 const getIdProduct = url => {
     const lastIndex = url.lastIndexOf('=');
@@ -65,21 +77,15 @@ const getIdProduct = url => {
 };
 
 const getProduct = (request, response) => {
-    const parsedUrl = url.parse(request.url);
-    const id = getIdProduct(parsedUrl.path);
-    const idArray = id.split(',');
     const productsFile = path.join(__dirname, '../../../', '/src/db/products', '/all-products.json');
     const products = fs.readFileSync(productsFile);
-    const allProductsJS = JSON.parse(products);
-
 
     const responseObj = {
         "status": "success",
-        "products": getElementId(id)
+        "products": getElementId(request.params.id)
     };
 
   response.writeHead (200, {"Contend-type" : "application/json"});
-  //response.write(JSON.stringify({ getIdProduct: id}));
     response.write(JSON.stringify(responseObj));
   response.end();
 
@@ -157,5 +163,9 @@ const getCategory = (request, response) => {
 
 
 module.exports = productRequest;
+module.exports = getProduct;
+module.exports = getProducts;
+
+
 
 
